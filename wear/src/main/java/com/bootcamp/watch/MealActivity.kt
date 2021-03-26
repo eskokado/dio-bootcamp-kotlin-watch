@@ -1,6 +1,7 @@
 package com.bootcamp.watch
 
 import android.app.Activity
+import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import com.dio.shared.Meal
@@ -9,6 +10,7 @@ import com.google.android.gms.wearable.PutDataRequest
 import com.google.android.gms.wearable.Wearable
 import com.google.gson.Gson
 import kotlinx.android.synthetic.main.activity_meal.*
+import android.support.wearable.activity.ConfirmationActivity
 
 class MealActivity : Activity(), GoogleApiClient.ConnectionCallbacks {
 
@@ -52,7 +54,27 @@ class MealActivity : Activity(), GoogleApiClient.ConnectionCallbacks {
   private fun sendLike() {
     currentMeal?.let {
       val bytes = Gson().toJson(it.copy(favorited = true)).toByteArray()
-      Wearable.DataApi.putDataItem(client, PutDataRequest.create("/liked").setData(bytes))
+      Wearable.DataApi.putDataItem(
+              client,
+              PutDataRequest.create("/liked")
+                      .setData(bytes)
+                      .setUrgent()
+      ).setResultCallback {
+        showConfirmationScreen()
+      }
     }
+  }
+
+  private fun showConfirmationScreen() {
+    val intent = Intent(this, ConfirmationActivity::class.java)
+    intent.putExtra(
+            ConfirmationActivity.EXTRA_ANIMATION_TYPE,
+            ConfirmationActivity.SUCCESS_ANIMATION
+    )
+    intent.putExtra(
+            ConfirmationActivity.EXTRA_MESSAGE,
+            getString(R.string.starred_meal)
+    )
+    startActivity(intent)
   }
 }
