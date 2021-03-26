@@ -1,4 +1,4 @@
-package com.bootcamp.watch
+package com.dio.shared
 
 data class Meal(
     val title: String,
